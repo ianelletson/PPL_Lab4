@@ -1,4 +1,10 @@
 stmt(T,T).
 stmt([pass|More], T) :- stmt(More,T).
-stmt([declare,_|More], T) :- stmt(More,T).
+stmt([declare,X|More], T) :- stmt(More,T), not(terminal(X)).
+stmt([use,Y|More], T) :- stmt(More,T), not(terminal(Y)).
 stmt(A) :- stmt(A, []).
+
+terminal(pass).
+terminal(declare).
+terminal(use).
+
