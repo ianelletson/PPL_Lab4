@@ -1,0 +1,4 @@
+stmt(T,T).
+stmt([pass|More], T) :- stmt(More,T).
+stmt([declare,_|More], T) :- stmt(More,T).
+stmt(A) :- stmt(A, []).
