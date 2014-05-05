@@ -1,10 +1,9 @@
-stmt(T,T).
-stmt([pass|More], T) :- stmt(More,T).
-stmt([declare,X|More], T) :- stmt(More,T), not(terminal(X)).
-stmt([use,Y|More], T) :- stmt(More,T), not(terminal(Y)).
+stmt([pass|T], T) :- not(terminal(T)).
+stmt([declare,X|More], More) :- not(terminal(X)).
+stmt([use,Y|More], More) :-  not(terminal(Y)).
 stmt(A) :- stmt(A, []).
 
+%Facts
 terminal(pass).
 terminal(declare).
 terminal(use).
-
