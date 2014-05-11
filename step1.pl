@@ -1,13 +1,32 @@
-stmt([pass|T], T) :- not(terminal(T)).
-stmt([declare,X|More], More) :- not(terminal(X)).
-stmt([use,X|More], More) :-  not(terminal(X)).
+%% Grammar
+%% <blck> ::= begin <stmts> end
+%% 
+%% <stmts> ::= <empty>
+          %% | <stmt> <stmts>
+%% 
+%% <stmt> ::= pass
+%%          | declare <name>
+%%          | use <name>
+%%          | <blck>
+
+%% Statement
+stmt([pass|More], More).
+stmt([declare,X|More], More) :- not(nonTerminal(X)).
+stmt([use,X|More], More) :-  not(nonTerminal(X)).
 stmt(A) :- stmt(A, []).
 
-%TODO: stmts
-stmts(T,T).
+%% Statements
+stmts([pass|More], More).
+stmts([Keyword, Var|More], More) :- stmt([Keyword,Var]).
+stmts([pass|More], Other) :- stmts(More,Other).
+stmts([Keyword, Var|More], Other) :- stmt([Keyword,Var]), stmts(More,Other).
 stmts(A) :- stmts(A, []).
 
-%Facts
-terminal(pass).
-terminal(declare).
-terminal(use).
+%% Block
+
+%% Facts
+nonTerminal(pass).
+nonTerminal(declare).
+nonTerminal(use).
+nonTerminal(begin).
+nonTerminal(end).
