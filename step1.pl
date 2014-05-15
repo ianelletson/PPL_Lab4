@@ -25,10 +25,6 @@ stmts([begin|Stmts], Tail) :- stmts(Stmts, [end|Tail]).
 stmts(A) :- stmts(A, []).
 
 %% Block
-%% blck([begin,declare,x,use,x,end,tail],[tail]).
-%% blck([begin,declare,x,begin,use,x,end,end,something,else],
-        %%[something,else]).
-%% blck([begin|Stmts]) :- stmts(Stmts, [end]). %% Works for no tail
 blck([begin,end|Tail], Tail).
 blck([begin|Stmts], Tail) :- stmts(Stmts, [end|Tail]).
 blck(Block) :- blck(Block, []).
