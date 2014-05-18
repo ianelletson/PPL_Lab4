@@ -18,19 +18,13 @@ stmt([declare,X|Tail], Tail, Parse) :-
 stmt(Stmt, Parse) :-
     stmt(Stmt, [], Parse).
 
-%% stmts([pass|Tail], Tail, [Parse]) :-
-%%     stmt([pass],Parse).
 stmts([pass|Stmts], Tail, [P|Parse]) :-
     stmt([pass], P), stmts(Stmts, Tail, Parse).
-%% stmts([use,X|Tail], Tail, [Parse]) :-
-%%     stmt([use,X], Parse).
 stmts([use,X|Stmts], Tail, [P|Parse]) :-
     stmt([use,X], P), stmts(Stmts, Tail, Parse).
-%% stmts([declare,X|Tail], Tail, [Parse]) :-
-%%     stmt([declare,X], Parse).
 stmts([declare,X|Stmts], Tail, [P|Parse]) :-
     stmt([declare,X], P), stmts(Stmts, Tail, Parse).
-stmts(Stmt, Tail, [Parse]) :- %% Can potentially replace commented stmts
+stmts(Stmt, Tail, [Parse]) :- 
     stmt(Stmt, Tail, Parse).
 stmts(Stmts, Parse) :-
     stmts(Stmts, [], Parse).
