@@ -9,24 +9,27 @@
 %%          | declare <name>
 %%          | use <name>
 %%          | <blck>
-stmt([pass|Tail], Tail, pass). 
-stmt([use,X|Tail], Tail, use(X)) :- 
+stmt([pass|Tail], Tail, pass, Declared, Vars). 
+stmt([use,X|Tail], Tail, use(X), Declared, Declared) :- 
+    member(X, Declared), not(nonTerminal(X)).
+stmt([declare,X|Tail], Tail, declare(X), Declared, [X|Declared]) :- 
     not(nonTerminal(X)).
-stmt([declare,X|Tail], Tail, declare(X)) :- 
-    not(nonTerminal(X)).
-stmt(Block, Tail, Parse) :-
+stmt(Block, Tail, Parse, Declared, Declared) :-
     blck(Block, Tail, Parse).
-stmt(Stmt, Parse) :-
-    stmt(Stmt, [], Parse).
+stmt(Stmt, Parse, Declared, Vars) :-
+    stmt(Stmt, [], Parse, Declared, Vars).
 
 stmts(Stmt, Tail, [Parse]) :- 
     stmt(Stmt, Tail, Parse).
 stmts([pass|Stmts], Tail, [P|Parse]) :-
-    stmt([pass], P), stmts(Stmts, Tail, Parse).
+    stmt([pass], P), 
+    stmts(Stmts, Tail, Parse).
 stmts([use,X|Stmts], Tail, [P|Parse]) :-
-    stmt([use,X], P), stmts(Stmts, Tail, Parse).
+    stmt([use,X], P),
+    stmts(Stmts, Tail, Parse).
 stmts([declare,X|Stmts], Tail, [P|Parse]) :-
-    stmt([declare,X], P), stmts(Stmts, Tail, Parse).
+    stmt([declare,X], P),
+    stmts(Stmts, Tail, Parse).
 stmts(Stmts, Parse) :-
     stmts(Stmts, [], Parse).
 
@@ -41,9 +44,6 @@ legal(Block, Parse) :-
     blck(Block, Parse).
 %% blck([begin|Stmts], Tail, Parse) :- %% WHY DOES THIS WORK?!?
 %%     select(end, Stmts, NewStmts), stmts(NewStmts, Tail, Parse).
-%% blck([begin|Stmts], Tail, Parse) :-
-%%     last(end, Stmts), split(Stmts, end, _, RStmts),
-%%     stmts(RStmts, Tail, Parse).
 
 
 nonTerminal(pass).
