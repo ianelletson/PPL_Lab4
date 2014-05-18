@@ -30,7 +30,13 @@ stmts([declare,X|Tail], Tail, [Parse]) :-
     stmt([declare,X], Parse).
 stmts([declare,X|Stmts], Tail, [P|Parse]) :-
     stmt([declare,X], P), stmts(Stmts, Tail, Parse).
+stmts(Stmts, Parse) :-
+    stmts(Stmts, [], Parse).
 
+blck([begin,end|Tail], Tail, Parse) :-
+    Parse = [].
+blck([begin|Stmts], Tail, Parse) :-
+    stmts(Stmts, Parse).
 
 nonTerminal(pass).
 nonTerminal(use).
