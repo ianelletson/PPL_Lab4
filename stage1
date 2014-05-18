@@ -1,0 +1,25 @@
+%% stage1
+%% Grammar
+%% <blck> ::= begin <stmts> end
+%% 
+%% <stmts> ::= <empty>
+%%          | <stmt> <stmts>
+%% 
+%% <stmt> ::= pass
+%%          | declare <name>
+%%          | use <name>
+%%          | <blck>
+stmt([pass|Tail], Tail, Parse) :- 
+    Parse = pass. %% Can set Parse to pass
+stmt([use,X|Tail], Tail, Parse) :- 
+    not(nonTerminal(X)), Parse = use(X).
+stmt([declare,X|Tail], Tail, Parse) :- 
+    not(nonTerminal(X)), Parse = declare(X).
+
+
+
+nonTerminal(pass).
+nonTerminal(use).
+nonTerminal(declare).
+nonTerminal(begin).
+nonTerminal(end).

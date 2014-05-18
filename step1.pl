@@ -24,7 +24,7 @@ stmts([Keyword, Var|More], Other) :- stmt([Keyword,Var]), stmts(More,Other).
 stmts([begin|Stmts], More) :- stmts(Stmts, [end|More]).
 stmts(A) :- stmts(A, []).
 
-%% blck([begin,pass,begin,pass,end,pass,end]).
+%% blck([begin,declare,x,begin,use,x,declare,y,end,use,y,end]).
 %% Block
 blck([begin,end|Tail], Tail).
 blck([begin|Stmts], Tail) :- stmts(Stmts, [end|Tail]).
