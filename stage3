@@ -10,7 +10,7 @@
 %%          | use <name>
 %%          | <blck>
  
-stmt([pass|Tail], Tail, pass, _Dec, _Vars).
+stmt([pass|Tail], Tail, pass, Dec, Dec). 
 stmt([use,X|Tail], Tail, use(X), Dec, Dec) :- 
     member(X, Dec), not(nonTerminal(X)).
 stmt([declare,X|Tail], Tail, declare(X), Dec, [X|Dec]) :- 
@@ -23,16 +23,17 @@ stmt(Stmt, Parse, Dec, Vars) :-
 stmts(Stmt, Tail, [Parse], Dec, Vars) :- 
     stmt(Stmt, Tail, Parse, Dec, Vars).
 stmts([pass|Stmts], Tail, [P|Parse], Dec, Vars) :-
-    stmt([pass], P, Dec, Vars), stmts(Stmts, Tail, Parse, Dec, Vars).
+    stmt([pass], P, _Dec, _Vars), stmts(Stmts, Tail, Parse, Dec, Vars).
 stmts([use,X|Stmts], Tail, [P|Parse], Dec, Vars) :-
     stmt([use,X], P, Dec, Dec), stmts(Stmts, Tail, Parse, Dec, Vars).
 stmts([declare,X|Stmts], Tail, [P|Parse], Dec, Vars) :-
     stmt([declare,X], P, Dec, NVars), stmts(Stmts, Tail, Parse, NVars, Vars).
 stmts([begin|Stmts], Tail, Parse, Dec, Vars) :-
     split(Stmts, end, LStmts, RStmts),
-    append([LStmtsParse], RStmtsParse, Parse),
-    stmts(LStmts, LStmtsParse, Dec, Vars),
-    stmts(RStmts, Tail, RStmtsParse, Dec, Vars).
+    stmts(LStmts, LStmtsParse, Dec, LVars),
+    stmts(RStmts, Tail, RStmtsParse, Dec, RVars),
+    append(LVars, RVars, Vars),
+    append([LStmtsParse], RStmtsParse, Parse).
 stmts(Stmts, Parse, Dec, Vars) :-
     stmts(Stmts, [], Parse, Dec, Vars).
 
@@ -42,8 +43,8 @@ blck([begin,end|Tail], Tail, Parse, [], []) :-
 %%     stmts(Stmts, [end|Tail], Parse, Dec, Vars).
 blck([begin|Stmts], Tail, Parse, Dec, Vars) :-
     split(Stmts, end, RStmts, Tail), stmts(RStmts, Parse, Dec, Vars).
-blck(Block, Parse, Dec, Vars) :-
-    blck(Block, [], Parse, Dec, Vars).
+blck(Block, Parse, Dec, Dec) :-
+    blck(Block, [], Parse, Dec, Dec).
 
 legal(Block, Parse) :-
     blck(Block, Parse).
