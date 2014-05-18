@@ -37,10 +37,10 @@ stmts(Stmts, Parse) :-
 
 blck([begin,end|Tail], Tail, Parse) :-
     Parse = [].
+%% blck([begin|Stmts], Tail, Parse) :-
+%%     stmts(Stmts, [end|Tail], Parse).
 blck([begin|Stmts], Tail, Parse) :-
-    stmts(Stmts, [end|Tail], Parse).
-blck([begin|Stmts], Tail, Parse) :-
-    split(Stmts, end, Stmts, Tail), stmts(Stmts, Parse).
+    split(Stmts, end, RStmts, Tail), stmts(RStmts, Parse).
 blck(Block, Parse) :-
     blck(Block, [], Parse).
 
