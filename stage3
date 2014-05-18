@@ -9,41 +9,43 @@
 %%          | declare <name>
 %%          | use <name>
 %%          | <blck>
-stmt([pass|Tail], Tail, pass, Declared, Vars). 
-stmt([use,X|Tail], Tail, use(X), Declared, Declared) :- 
-    member(X, Declared), not(nonTerminal(X)).
-stmt([declare,X|Tail], Tail, declare(X), Declared, [X|Declared]) :- 
+ 
+stmt([pass|Tail], Tail, pass, _Dec, _Vars).
+stmt([use,X|Tail], Tail, use(X), Dec, Dec) :- 
+    member(X, Dec), not(nonTerminal(X)).
+stmt([declare,X|Tail], Tail, declare(X), Dec, [X|Dec]) :- 
     not(nonTerminal(X)).
-stmt(Block, Tail, Parse, Declared, Declared) :-
+stmt(Block, Tail, Parse) :-
     blck(Block, Tail, Parse).
-stmt(Stmt, Parse, Declared, Vars) :-
-    stmt(Stmt, [], Parse, Declared, Vars).
+stmt(Stmt, Parse, Dec, Vars) :-
+    stmt(Stmt, [], Parse, Dec, Vars).
 
-stmts(Stmt, Tail, [Parse]) :- 
-    stmt(Stmt, Tail, Parse).
-stmts([pass|Stmts], Tail, [P|Parse]) :-
-    stmt([pass], P), 
-    stmts(Stmts, Tail, Parse).
-stmts([use,X|Stmts], Tail, [P|Parse]) :-
-    stmt([use,X], P),
-    stmts(Stmts, Tail, Parse).
-stmts([declare,X|Stmts], Tail, [P|Parse]) :-
-    stmt([declare,X], P),
-    stmts(Stmts, Tail, Parse).
+stmts(Stmt, Tail, [Parse], Dec, Vars) :- 
+    stmt(Stmt, Tail, Parse, Dec, Vars).
+stmts([pass|Stmts], Tail, [P|Parse], Dec, Vars) :-
+    stmt([pass], P, Dec, Vars), stmts(Stmts, Tail, Parse, Dec, Vars).
+stmts([use,X|Stmts], Tail, [P|Parse], Dec, Vars) :-
+    stmt([use,X], P, Dec, Dec), stmts(Stmts, Tail, Parse, Dec, Vars).
+stmts([declare,X|Stmts], Tail, [P|Parse], Dec, Vars) :-
+    stmt([declare,X], P, Dec, NVars), stmts(Stmts, Tail, Parse, NVars, Vars).
+stmts([begin|Stmts], Tail, Parse,) :-
+    split(Stmts, end, LStmts, RStmts),
+    append([LStmtsParse], RStmtsParse, Parse), stmts(LStmts, LStmtsParse),
+    stmts(RStmts, Tail, RStmtsParse).
 stmts(Stmts, Parse) :-
     stmts(Stmts, [], Parse).
 
-blck([begin,end|Tail], Tail, Parse) :-
+blck([begin,end|Tail], Tail, Parse, [], []) :-
     Parse = [].
-blck([begin|Stmts], Tail, Parse) :-
-    stmts(Stmts, [end|Tail], Parse).
-blck(Block, Parse) :-
-    blck(Block, [], Parse).
+blck([begin|Stmts], Tail, Parse, Dec, Vars) :-
+    stmts(Stmts, [end|Tail], Parse, Dec, Vars).
+blck([begin|Stmts], Tail, Parse, Dec, Vars) :-
+    split(Stmts, end, Stmts, Tail), stmts(Stmts, Parse, Dec, Vars).
+blck(Block, Parse, Dec, Vars) :-
+    blck(Block, [], Parse, Dec, Vars).
 
 legal(Block, Parse) :-
     blck(Block, Parse).
-%% blck([begin|Stmts], Tail, Parse) :- %% WHY DOES THIS WORK?!?
-%%     select(end, Stmts, NewStmts), stmts(NewStmts, Tail, Parse).
 
 
 nonTerminal(pass).
@@ -51,3 +53,5 @@ nonTerminal(use).
 nonTerminal(declare).
 nonTerminal(begin).
 nonTerminal(end).
+
+split(List, Pivot, Left, Right) :- append(Left, [Pivot|Right], List).
