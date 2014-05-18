@@ -34,8 +34,7 @@ stmts(Stmts, Parse) :-
 blck([begin,end|Tail], Tail, Parse) :-
     Parse = [].
 blck([begin|Stmts], Tail, Parse) :-
-    select(end, Stmts, NS), stmts(NS, Tail, Parse).
-
+    select(end, Stmts, NewStmts), stmts(NewStmts, Tail, Parse).
 
 
 nonTerminal(pass).
