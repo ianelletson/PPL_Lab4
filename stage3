@@ -9,12 +9,11 @@
 %%          | declare <name>
 %%          | use <name>
 %%          | <blck>
-stmt([pass|Tail], Tail, Parse) :- 
-    Parse = pass. %% Can set Parse to pass
-stmt([use,X|Tail], Tail, Parse) :- 
-    not(nonTerminal(X)), Parse = use(X).
-stmt([declare,X|Tail], Tail, Parse) :- 
-    not(nonTerminal(X)), Parse = declare(X).
+stmt([pass|Tail], Tail, pass). 
+stmt([use,X|Tail], Tail, use(X)) :- 
+    not(nonTerminal(X)).
+stmt([declare,X|Tail], Tail, declare(X)) :- 
+    not(nonTerminal(X)).
 stmt(Block, Tail, Parse) :-
     blck(Block, Tail, Parse).
 stmt(Stmt, Parse) :-
