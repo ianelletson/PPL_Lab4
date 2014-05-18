@@ -31,10 +31,17 @@ stmts([declare,X|Stmts], Tail, [P|Parse]) :-
 stmts(Stmts, Parse) :-
     stmts(Stmts, [], Parse).
 
+split(List, Pivot, Left, Right) :- append(Left, [Pivot|Right], List).
+
 blck([begin,end|Tail], Tail, Parse) :-
     Parse = [].
 blck([begin|Stmts], Tail, Parse) :-
-    select(end, Stmts, NewStmts), stmts(NewStmts, Tail, Parse).
+    stmts(Stmts, [end|Tail], Parse).
+%% blck([begin|Stmts], Tail, Parse) :- %% WHY DOES THIS WORK?!?
+%%     select(end, Stmts, NewStmts), stmts(NewStmts, Tail, Parse).
+%% blck([begin|Stmts], Tail, Parse) :-
+%%     last(end, Stmts), split(Stmts, end, _, RStmts),
+%%     stmts(RStmts, Tail, Parse).
 
 
 nonTerminal(pass).
