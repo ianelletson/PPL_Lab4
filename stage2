@@ -15,24 +15,28 @@ stmt([use,X|Tail], Tail, Parse) :-
     not(nonTerminal(X)), Parse = use(X).
 stmt([declare,X|Tail], Tail, Parse) :- 
     not(nonTerminal(X)), Parse = declare(X).
+stmt(Block, Tail, Parse) :-
+    blck(Block, Tail, Parse).
 stmt(Stmt, Parse) :-
     stmt(Stmt, [], Parse).
 
+stmts(Stmt, Tail, [Parse]) :- 
+    stmt(Stmt, Tail, Parse).
 stmts([pass|Stmts], Tail, [P|Parse]) :-
     stmt([pass], P), stmts(Stmts, Tail, Parse).
 stmts([use,X|Stmts], Tail, [P|Parse]) :-
     stmt([use,X], P), stmts(Stmts, Tail, Parse).
 stmts([declare,X|Stmts], Tail, [P|Parse]) :-
     stmt([declare,X], P), stmts(Stmts, Tail, Parse).
-stmts(Stmt, Tail, [Parse]) :- 
-    stmt(Stmt, Tail, Parse).
 stmts(Stmts, Parse) :-
     stmts(Stmts, [], Parse).
 
 blck([begin,end|Tail], Tail, Parse) :-
     Parse = [].
 blck([begin|Stmts], Tail, Parse) :-
-    stmts(Stmts, [end|Tail], Parse).
+    select(end, Stmts, NS), stmts(NS, Tail, Parse).
+
+
 
 nonTerminal(pass).
 nonTerminal(use).
