@@ -14,7 +14,7 @@ stmt([pass|Tail], Tail, pass, Dec, Dec).
 stmt([use,X|Tail], Tail, use(X), Dec, Dec) :- 
     member(X, Dec), not(nonTerminal(X)).
 stmt([declare,X|Tail], Tail, declare(X), Dec, [X|Dec]) :- 
-    not(nonTerminal(X)).
+    not(member(X, Dec)), not(nonTerminal(X)). %% this isn't working AE
 stmt(Block, Tail, Parse, Dec, Vars) :-
     blck(Block, Tail, Parse, Dec, Vars).
 stmt(Stmt, Parse, Dec, Vars) :-
@@ -30,17 +30,13 @@ stmts([declare,X|Stmts], Tail, [P|Parse], Dec, Vars) :-
     stmt([declare,X], P, Dec, NVars), stmts(Stmts, Tail, Parse, NVars, Vars).
 stmts([begin|Stmts], Tail, Parse, Dec, RVars) :-
     split(Stmts, end, LStmts, RStmts),
-    stmts(LStmts, LStmtsParse, Dec, LVars),
+    stmts(LStmts, LStmtsParse, Dec, _),
     stmts(RStmts, Tail, RStmtsParse, Dec, RVars),
-    %% append(LVars, RVars, Vars),
     append([LStmtsParse], RStmtsParse, Parse).
 stmts(Stmts, Parse, Dec, Vars) :-
     stmts(Stmts, [], Parse, Dec, Vars).
 
-blck([begin,end|Tail], Tail, Parse, [], []) :-
-    Parse = [].
-%% blck([begin|Stmts], Tail, Parse, Dec, Vars) :-
-%%     stmts(Stmts, [end|Tail], Parse, Dec, Vars).
+blck([begin,end|Tail], Tail, [], [], []).
 blck([begin|Stmts], Tail, Parse, Dec, Vars) :-
     split(Stmts, end, RStmts, Tail), stmts(RStmts, Parse, Dec, [_|Vars]).
 blck(Block, Parse, Dec, Dec) :-
