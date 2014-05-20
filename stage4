@@ -14,7 +14,10 @@ stmt([pass|Tail], Tail, pass, Dec, Dec).
 stmt([use,X|Tail], Tail, use(X), Dec, Dec) :- 
     member(X, Dec), not(nonTerminal(X)).
 stmt([declare,X|Tail], Tail, declare(X), Dec, [X|Dec]) :- 
-    not(member(X, Dec)), not(nonTerminal(X)). %% this isn't working AE
+    not(member(X, Dec)), not(nonTerminal(X)). 
+    %% this isn't working as expected it should really be checking 
+    %% to see if X has been declared in the same scope, not just simply
+    %% declared at all
 stmt(Block, Tail, Parse, Dec, Vars) :-
     blck(Block, Tail, Parse, Dec, Vars).
 stmt(Stmt, Parse, Dec, Vars) :-
